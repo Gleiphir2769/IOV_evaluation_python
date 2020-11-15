@@ -10,7 +10,7 @@ class Task:
         self.solution = solution
 
     def __repr__(self):
-        return "task:%r, data size:%r\n" % (self.id, self.data_size)
+        return "task:%r, from:%r ,data size:%r\n" % (self.id, self.belong_vehicle.id, self.data_size)
 
     def cal_transmission_time(self, infrastructure):
         length = abs(self.belong_vehicle.location - infrastructure.location)
@@ -37,4 +37,4 @@ class Task:
         return self.data_size/infrastructure.frequency
 
     def offload(self, infrastructure):
-        infrastructure.waiting_queue.apeend(self)
+        infrastructure.waiting_queue.append(self)

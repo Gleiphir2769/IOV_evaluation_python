@@ -1,5 +1,4 @@
-import sys
-
+from random import randint
 
 class Solution:
     infrastructures = []
@@ -15,10 +14,20 @@ class Solution:
             if estimate_time(self.task, infrastructure) < min_time:
                 min_time = estimate_time(self.task, infrastructure)
                 best_des = infrastructure
-        best_des.waiting_queue.append(self.task)
+        # 添加任务到最佳卸载设备等待队列中
+        self.task.offload(best_des)
+        # 卸载后将该任务所属车辆移动位置
         self.task.belong_vehicle.run(min_time)
+        # print("vehicle id:" + str(self.task.belong_vehicle.id) + "  " + str(self.task.belong_vehicle))
+        # 改变车辆所属时间戳，修正waiting time的计算
         self.task.belong_vehicle.refresh_timestamp(min_time)
         return min_time, best_des
+
+    def offload_random_infrastructure(self):
+        random_des = self.infrastructures[randint(0, len(self.infrastructures)-1)]
+        random_time = estimate_time(self.task, random_des)
+
+        return random_time, random_des
 
 
 def estimate_time(task, infrastructure):
