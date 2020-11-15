@@ -1,25 +1,34 @@
 import random
 from task import Task
+from infrastructure import Infrastructure
 
 
-class Vehicle:
-    frequency = 3000
+class Vehicle(Infrastructure):
+    frequency = 300
     speed = 20
     task_queue = []
     capacity = 1
     timestamp = 0
 
-    def __init__(self):
+    def __init__(self, id):
         self.location = random.randint(0, 100)
+        self.id = id
         for i in range(5):
             task = Task(self, i)
             self.task_queue.append(task)
+        self.waiting_queue = list()
 
     def run(self, time):
         self.location = self.location + self.speed*time
 
+    def get_after_run_location(self, time):
+        return self.location + self.speed*time
+
     def tackle(self, task):
         return task.data_size/self.frequency
+
+    def refresh_timestamp(self, time):
+        self.timestamp += time
 
     # def cal_transmission_time(self, task):
     #     come_time = abs(self.location-task.belong_vehicle.location)
@@ -31,8 +40,10 @@ class Vehicle:
     def push_task(self):
         return self.task_queue.pop(0)
 
+    # def __repr__(self):
+    #     return "vehicle with location %r, task queue %r, waiting queue %r" % (self.location, self.task_queue, self.waiting_queue)
     def __repr__(self):
-        return "vehicle with frequency %r, speed %r, task queue %r" % (self.frequency, self.speed, self.task_queue)
+        return "vehicle in %r" % self.location
 
 if __name__ == '__main__':
     v = Vehicle()
