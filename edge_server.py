@@ -8,6 +8,7 @@ class EdgeServer(Infrastructure):
 
     def __init__(self, location):
         self.location = location
+        self.waiting_queue = list()
 
     def __repr__(self):
-        return "location: %r" % self.location
+        return "edge_location: %r" % self.location
