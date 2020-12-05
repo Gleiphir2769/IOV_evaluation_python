@@ -1,10 +1,10 @@
 from infrastructure import Infrastructure
-
+import config
 
 class EdgeServer(Infrastructure):
-    frequency = 3000
+    frequency = config.EDGE_FREQUENCY
     waiting_queue = []
-    location = 0
+    type = "ES"
 
     def __init__(self, location):
         self.location = location

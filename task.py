@@ -1,8 +1,16 @@
 from datetime import time
-Ray_speed = 100
+import config
 
 class Task:
-    data_size = 2000
+    data_size = config.DATA_SIZE
+    # 开始分配时刻
+    start_time = 0
+    # 任务完成时刻
+    end_time = 0
+    # 抵达处理机时刻
+    ready_time = 0
+    # 结束运行时刻
+    finish_time = 0
 
     def __init__(self, vehicle, id=0, solution=None):
         self.belong_vehicle = vehicle
@@ -12,21 +20,29 @@ class Task:
     def __repr__(self):
         return "task:%r, from:%r ,data size:%r\n" % (self.id, self.belong_vehicle.id, self.data_size)
 
+
     def cal_transmission_time(self, infrastructure):
         length = abs(self.belong_vehicle.location - infrastructure.location)
-        come_time = length/Ray_speed
+        come_time = length/config.RAY_SPEED
         # 计算预设情况下汽车的接受回传数据时的位置
         after_location = self.belong_vehicle.get_after_run_location(come_time)
         length = abs(after_location - infrastructure.location)
-        back_time = length/Ray_speed
+        back_time = length/config.RAY_SPEED
         return come_time + back_time
 
-    def cal_waiting_time(self, infrastructure):
-        waiting_time = 0 - self.belong_vehicle.timestamp
+    def cal_come_time(self, infrastructure):
+        length = abs(self.belong_vehicle.location - infrastructure.location)
+        come_time = length/config.RAY_SPEED
+        return come_time
 
-        # waiting_time = 0
-        for wait_task in infrastructure.waiting_queue:
-            waiting_time += wait_task.cal_calculate_time(infrastructure)
+    def cal_waiting_time(self, infrastructure):
+        self.start_time = self.belong_vehicle.timestamp
+        self.ready_time = self.start_time + self.cal_come_time(infrastructure)
+
+        if len(infrastructure.waiting_queue) > 0:
+            waiting_time = infrastructure.waiting_queue[-1].finish_time - self.ready_time
+        else:
+            waiting_time = 0
 
         if waiting_time > 0:
             return waiting_time
@@ -37,4 +53,5 @@ class Task:
         return self.data_size/infrastructure.frequency
 
     def offload(self, infrastructure):
+        self.finish_time = self.ready_time + self.cal_waiting_time(infrastructure) + self.cal_calculate_time(infrastructure)
         infrastructure.waiting_queue.append(self)
