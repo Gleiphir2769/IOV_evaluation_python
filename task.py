@@ -1,5 +1,7 @@
 from datetime import time
 import config
+from math import sqrt
+
 
 class Task:
     data_size = config.DATA_SIZE
@@ -20,19 +22,22 @@ class Task:
     def __repr__(self):
         return "task:%r, from:%r ,data size:%r\n" % (self.id, self.belong_vehicle.id, self.data_size)
 
-
     def cal_transmission_time(self, infrastructure):
-        length = abs(self.belong_vehicle.location - infrastructure.location)
-        come_time = length/config.RAY_SPEED
+        vehicle = self.belong_vehicle
+        length = exchange_distance(vehicle.latitude, vehicle.longitude, infrastructure.latitude,
+                                   infrastructure.longitude)
+        come_time = length / config.RAY_SPEED
         # 计算预设情况下汽车的接受回传数据时的位置
-        after_location = self.belong_vehicle.get_after_run_location(come_time)
-        length = abs(after_location - infrastructure.location)
-        back_time = length/config.RAY_SPEED
+        after_latitude, after_longitude = self.belong_vehicle.get_after_run_location(come_time)
+        length = exchange_distance(after_latitude, after_longitude, infrastructure.latitude, infrastructure.longitude)
+        back_time = length / config.RAY_SPEED
         return come_time + back_time
 
     def cal_come_time(self, infrastructure):
-        length = abs(self.belong_vehicle.location - infrastructure.location)
-        come_time = length/config.RAY_SPEED
+        vehicle = self.belong_vehicle
+        length = exchange_distance(vehicle.latitude, vehicle.longitude, infrastructure.latitude,
+                                   infrastructure.longitude)
+        come_time = length / config.RAY_SPEED
         return come_time
 
     def cal_waiting_time(self, infrastructure):
@@ -50,8 +55,13 @@ class Task:
             return 0
 
     def cal_calculate_time(self, infrastructure):
-        return self.data_size/infrastructure.frequency
+        return self.data_size / infrastructure.frequency
 
     def offload(self, infrastructure):
-        self.finish_time = self.ready_time + self.cal_waiting_time(infrastructure) + self.cal_calculate_time(infrastructure)
+        self.finish_time = self.ready_time + self.cal_waiting_time(infrastructure) + self.cal_calculate_time(
+            infrastructure)
         infrastructure.waiting_queue.append(self)
+
+
+def exchange_distance(s_lat, s_long, d_lat, d_long):
+    return sqrt(pow(s_lat - d_lat, 2) + pow(s_long - d_long, 2))
