@@ -7,7 +7,8 @@ class EdgeServer(Infrastructure):
     waiting_queue = []
     type = "ES"
 
-    def __init__(self, longitude, latitude):
+    def __init__(self, longitude, latitude, id=0):
+        self.id = id
         self.latitude = latitude
         self.longitude = longitude
         self.waiting_queue = list()

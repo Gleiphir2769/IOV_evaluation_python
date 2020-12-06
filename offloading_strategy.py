@@ -3,6 +3,7 @@ from random import shuffle
 
 from vehicle import Vehicle
 from edge_server import EdgeServer
+from dataset_reader import data_reader
 
 import config
 
@@ -50,6 +51,8 @@ def estimate_time(task, infrastructure):
 
 
 def cal_total_time(per_tasks, vehicle_nums, algo="Benchmark"):
+    # 读入数据
+    edge_list, vehicle_list = data_reader()
     # 任务队列总消耗时间
     Total_Time = 0
     # 总调度队列
@@ -57,7 +60,10 @@ def cal_total_time(per_tasks, vehicle_nums, algo="Benchmark"):
     # 调度目的地计数器
     offload_des = {"VE": 0, "ES": 0}
     # 车辆队列
-    vehicles = [Vehicle(index, vehicle_nums) for index in range(per_tasks)]
+    # vehicles = [Vehicle(index, per_tasks) for index in range(vehicle_nums)]
+    # vehicle_data说明：0.id 1.edge id 2.latitude 3.longitude 4.per_tasks
+    vehicles = [Vehicle(vehicle_data[0], vehicle_data[4], vehicle_data[2], vehicle_data[3]) for vehicle_data in
+                vehicle_list]
     # 将车辆队列携带的任务添加到总调度队列中
     for vehicle in vehicles:
         simulation_task_list += vehicle.task_queue
@@ -65,13 +71,16 @@ def cal_total_time(per_tasks, vehicle_nums, algo="Benchmark"):
     # 打乱模拟任务序列顺序以模拟多线程乱序发射任务
     shuffle(simulation_task_list)
 
-    # 合并处理终端队列
-    edge_server_list = []
-    for lat in range(config.ROAD_START, config.ROAD_LENGTH, config.DEPLOY_INTERVAL):
-        for long in range(config.ROAD_START, config.ROAD_LENGTH, config.DEPLOY_INTERVAL):
-            edge_server_list.append(EdgeServer(long, lat))
+    # 初始化边缘服务器
+    # edge_server_list = []
+    # for lat in range(config.ROAD_START, config.ROAD_LENGTH, config.DEPLOY_INTERVAL):
+    #     for long in range(config.ROAD_START, config.ROAD_LENGTH, config.DEPLOY_INTERVAL):
+    #         edge_server_list.append(EdgeServer(long, lat))
+    edge_server_list = [EdgeServer(edge_data[1], edge_data[2], edge_data[0]) for edge_data in edge_list]
 
+    # 合并边缘服务器端和车辆终端
     server_list = edge_server_list + vehicles
+    # server_list = edge_server_list
 
     # 遍历调度队列使用指定的算法计算总时延
     for index in range(len(simulation_task_list)):

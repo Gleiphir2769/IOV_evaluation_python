@@ -64,4 +64,4 @@ class Task:
 
 
 def exchange_distance(s_lat, s_long, d_lat, d_long):
-    return sqrt(pow(s_lat - d_lat, 2) + pow(s_long - d_long, 2))
+    return sqrt(pow((s_lat - d_lat)*10, 2) + pow((s_long - d_long)*10, 2))
