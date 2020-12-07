@@ -14,10 +14,12 @@ class Task:
     # 结束运行时刻
     finish_time = 0
 
-    def __init__(self, vehicle, id=0, solution=None):
+    def __init__(self, vehicle, id=0, solution=None, dis_edge=None):
         self.belong_vehicle = vehicle
         self.id = id
         self.solution = solution
+        # 只有在引用真实数据时才会给这个成员变量赋值
+        self.dis_edge = dis_edge
 
     def __repr__(self):
         return "task:%r, from:%r ,data size:%r\n" % (self.id, self.belong_vehicle.id, self.data_size)

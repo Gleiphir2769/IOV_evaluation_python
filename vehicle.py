@@ -13,7 +13,7 @@ class Vehicle(Infrastructure):
 
     # 成员变量为可变对象时必须万分小心，注意引用的问题
     def __init__(self, id, per_tasks, latitude=random.randint(config.ROAD_START, config.ROAD_LENGTH),
-                 longitude=random.randint(config.ROAD_START, config.ROAD_LENGTH)):
+                 longitude=random.randint(config.ROAD_START, config.ROAD_LENGTH), real_dis_edge=None):
         self.latitude = latitude
         self.longitude = longitude
         speed_val = 20
@@ -22,8 +22,9 @@ class Vehicle(Infrastructure):
         self.id = id
         self.task_queue = list()
         for i in range(per_tasks):
-            task = Task(self, i)
+            task = Task(self, i, None, real_dis_edge)
             self.task_queue.append(task)
+
         self.waiting_queue = list()
 
     def run(self, time):

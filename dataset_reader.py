@@ -13,33 +13,38 @@ def data_reader():
     edge_list = list()
     user_list = list()
     task_dict = dict()
-    latitude_list = list()
-    longitude_list = list()
+    task_list = list()
+
     edge_id = 1
     for row in df.itertuples(index=True, name='Pandas'):
         latitude = getattr(row, "latitude")
         longitude = getattr(row, "longitude")
         user_id = getattr(row, "userid")
         if latitude not in edge_set:
-            edge_list.append([edge_id, latitude, longitude])
+            # edge_list.append([edge_id, latitude, longitude])
+            edge_list.append({"edge_id": edge_id, "e_latitude": latitude, "e_longitude": longitude})
             edge_set.add(latitude)
             edge_id += 1
         if user_id not in user_set:
             # 产生以目标边缘服务器为圆心的随机位置，以模拟真实的车流量
-            v_latitude = uniform(latitude-RADIANT, latitude+RADIANT)
-            v_longitude = uniform(longitude-RADIANT, longitude+RADIANT)
-            user_list.append([user_id, edge_id, v_latitude, v_longitude])
+            v_latitude = uniform(latitude - RADIANT, latitude + RADIANT)
+            v_longitude = uniform(longitude - RADIANT, longitude + RADIANT)
+            # user_list.append([user_id, edge_id, v_latitude, v_longitude])
+            # 由于edge_id 在每次新的edge添加到列表中后会自动指向下一个edge，所以当前真实edge_id 为 edge_id-1
+            now_edge_id = edge_id-1
+            user_list.append(
+                {"vehicle_id": user_id, "edge_id": now_edge_id, "v_latitude": v_latitude, "v_longitude": v_longitude})
             user_set.add(user_id)
         if user_id in task_dict:
             task_dict[user_id] += 1
         else:
             task_dict[user_id] = 1
+        # task_list.append({"dis_edge_latitude": latitude, "dis_edge_longitude": longitude, "vehicle_id": user_id})
 
     for user in user_list:
-        user.append(task_dict.get(user[0]))
-
+        # user.append(task_dict.get(user[0]))
+        user["per_tasks"] = task_dict.get(user.get("vehicle_id"))
     return edge_list, user_list
-    # todo: 如何设定车辆的随机位置，计算距离原定服务器的偏移距离。把数据带到主函数初始化
 
 
 if __name__ == '__main__':
