@@ -4,10 +4,9 @@ from random import uniform
 from src.config import RADIANT
 
 
-def data_reader():
+def data_reader(filename="experiment"):
     path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    filename = "/static/dataset/experiment.xlsx"
-    filepath = path + filename
+    filepath = path + "/static/dataset/" + filename + ".xlsx"
 
     df = pd.read_excel(filepath, sheet_name=0, nrows=1000)
 
@@ -16,7 +15,6 @@ def data_reader():
     edge_list = list()
     user_list = list()
     task_dict = dict()
-    # task_list = list()
 
     edge_id = 1
     for row in df.itertuples(index=True, name='Pandas'):
@@ -24,15 +22,13 @@ def data_reader():
         longitude = getattr(row, "longitude")
         user_id = getattr(row, "userid")
         if latitude not in edge_set:
-            # edge_list.append([edge_id, latitude, longitude])
-            edge_list.append({"edge_id": edge_id, "e_latitude": latitude, "e_longitude": longitude})
+            edge_list.append({"edge_id": edge_id, "lat": latitude, "lng": longitude})
             edge_set.add(latitude)
             edge_id += 1
         if user_id not in user_set:
             # 产生以目标边缘服务器为圆心的随机位置，以模拟真实的车流量
             v_latitude = uniform(latitude - RADIANT, latitude + RADIANT)
             v_longitude = uniform(longitude - RADIANT, longitude + RADIANT)
-            # user_list.append([user_id, edge_id, v_latitude, v_longitude])
             # 由于edge_id 在每次新的edge添加到列表中后会自动指向下一个edge，所以当前真实edge_id 为 edge_id-1
             now_edge_id = edge_id - 1
             user_list.append(
@@ -42,10 +38,16 @@ def data_reader():
             task_dict[user_id] += 1
         else:
             task_dict[user_id] = 1
-        # task_list.append({"dis_edge_latitude": latitude, "dis_edge_longitude": longitude, "vehicle_id": user_id})
 
+        if latitude in task_dict:
+            edge_list[-1]["queue_len"] += 1
+        else:
+            task_dict[latitude] = 1
+            edge_list[-1]["queue_len"] = 1
+            if len(edge_list) > 1:
+                last_edge = edge_list[-2]
+                last_edge["type"] = dic_type(last_edge.get("queue_len"))
     for user in user_list:
-        # user.append(task_dict.get(user[0]))
         user["per_tasks"] = task_dict.get(user.get("vehicle_id"))
     return edge_list, user_list
 
@@ -62,6 +64,18 @@ def data_clean(source_name, out_name):
     data.to_excel(output_file)
     print("数据清洗成功")
 
+
+def dic_type(queue_len):
+    if queue_len < 10:
+        return 1
+    elif 10 <= queue_len < 20:
+        return 2
+    elif 20 <= queue_len < 50:
+        return 3
+    elif 40 <= queue_len < 100:
+        return 4
+    else:
+        return 5
 
 
 if __name__ == '__main__':

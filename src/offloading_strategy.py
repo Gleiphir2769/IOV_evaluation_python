@@ -97,7 +97,7 @@ def cal_total_time(per_tasks, vehicle_nums, algo="Benchmark"):
     # for lat in range(config.ROAD_START, config.ROAD_LENGTH, config.DEPLOY_INTERVAL):
     #     for long in range(config.ROAD_START, config.ROAD_LENGTH, config.DEPLOY_INTERVAL):
     #         edge_server_list.append(EdgeServer(long, lat))
-    edge_server_list = [EdgeServer(edge_data.get("e_latitude"), edge_data.get("e_longitude"), edge_data.get("edge_id"))
+    edge_server_list = [EdgeServer(edge_data.get("lat"), edge_data.get("lng"), edge_data.get("edge_id"))
                         for edge_data in edge_list]
 
     # 合并边缘服务器端和车辆终端
