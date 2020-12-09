@@ -8,8 +8,11 @@ def data_reader(filename="experiment"):
     path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     filepath = path + "/static/dataset/" + filename + ".xlsx"
 
+    print("*"*15, "开始读取%r中的内容" % filename)
     df = pd.read_excel(filepath, sheet_name=0)
+    print("*"*15, "读取%r完毕" % filename)
 
+    print("*" * 15, "开始处理数据")
     edge_set = set()
     user_set = set()
     edge_list = list()
@@ -49,20 +52,21 @@ def data_reader(filename="experiment"):
                 last_edge["type"] = dic_type(last_edge.get("queue_len"))
     for user in user_list:
         user["per_tasks"] = task_dict.get(user.get("vehicle_id"))
+    print("*" * 15, "处理完成！")
     return edge_list, user_list
 
 
 def data_clean(source_name, out_name):
     path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     source_file = path + '/static/dataset/' + source_name + ".xlsx"
-    output_file = path + '/static/dataset/' + out_name + ".csv"
-    print("开始读取源文件")
+    output_file = path + '/static/dataset/' + out_name + ".xlsx"
+    print("*"*15, "开始读取源文件")
     df = pd.read_excel(source_file, sheet_name=0)
-    print("结束读取源文件\n开始清洗数据")
+    print("*"*15, "结束读取源文件\n", "*"*15, "开始清洗数据")
     data = df.dropna()
-    print("结束清洗数据\n开始写入目标文件")
-    data.to_excel(output_file)
-    print("数据清洗成功")
+    print("*"*15, "结束清洗数据\n", "*"*15, "开始写入目标文件")
+    data.to_excel(output_file, index=False)
+    print("*"*15, "数据清洗成功")
 
 
 def dic_type(queue_len):
@@ -78,16 +82,28 @@ def dic_type(queue_len):
         return 5
 
 
-def dataset_slip(quantity, source_name):
+def dataset_slip(source_name, quantity=1000):
     path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    out_name = source_name + "_slip_to_" + str(quantity)
     source_path = path + "/static/dataset/" + source_name + ".xlsx"
-    out_path = path + "/static/dataset/" + source_name + "_slip_to_" + str(quantity) + ".xlsx"
+    out_path = path + "/static/dataset/" + out_name + ".xlsx"
     print("*"*15, "开始读取%r中的内容" % source_name)
     df = pd.read_excel(source_path, sheet_name=0, nrows=quantity)
     print("*"*15, "读取%r完毕" % source_name)
     print("*"*15, "开始写入")
     df.to_excel(out_path, index=False)
+    print("*"*15, "写入成功")
+    data_clean(out_name, out_name)
 
 
 if __name__ == '__main__':
-    dataset_slip(1000, "data_6.1~6.15")
+    dataset_slip("data_8.1~8.15")
+    dataset_slip("data_8.16~8.31")
+    dataset_slip("data_9.1~9.15")
+    dataset_slip("data_9.16~9.30")
+    dataset_slip("data_10.1~10.15")
+    dataset_slip("data_10.16~10.31")
+    dataset_slip("data_11.1~11.15")
+    dataset_slip("data_11.16~11.30")
+
+

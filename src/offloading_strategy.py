@@ -70,9 +70,9 @@ def estimate_time(task, infrastructure):
            + task.cal_waiting_time(infrastructure)
 
 
-def cal_total_time(per_tasks, vehicle_nums, algo="Benchmark"):
+def cal_total_time(filename="experiment", algo="Benchmark", per_tasks=20, vehicle_nums=20):
     # 读入数据
-    edge_list, vehicle_list = data_reader()
+    edge_list, vehicle_list = data_reader(filename)
     # 任务队列总消耗时间
     Total_Time = 0
     # 总调度队列
