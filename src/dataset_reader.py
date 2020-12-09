@@ -8,7 +8,7 @@ def data_reader(filename="experiment"):
     path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     filepath = path + "/static/dataset/" + filename + ".xlsx"
 
-    df = pd.read_excel(filepath, sheet_name=0, nrows=1000)
+    df = pd.read_excel(filepath, sheet_name=0)
 
     edge_set = set()
     user_set = set()
@@ -78,5 +78,16 @@ def dic_type(queue_len):
         return 5
 
 
+def dataset_slip(quantity, source_name):
+    path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    source_path = path + "/static/dataset/" + source_name + ".xlsx"
+    out_path = path + "/static/dataset/" + source_name + "_slip_to_" + str(quantity) + ".xlsx"
+    print("*"*15, "开始读取%r中的内容" % source_name)
+    df = pd.read_excel(source_path, sheet_name=0, nrows=quantity)
+    print("*"*15, "读取%r完毕" % source_name)
+    print("*"*15, "开始写入")
+    df.to_excel(out_path, index=False)
+
+
 if __name__ == '__main__':
-    data_clean("plot_dataset_source", "plot_out")
+    dataset_slip(1000, "data_6.1~6.15")
