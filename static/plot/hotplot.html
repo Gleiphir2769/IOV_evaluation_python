@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>路况热力图</title>
+    <style>
+        html, body, #container {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="container" class="container"></div>
+<script src="https://webapi.amap.com/maps?key=f507f1ad3293f3cb3d551fe4ca8504c8&v=1.4.15&plugin=Map3D(同步加载 3D 地图)"></script>
+<script src="https://webapi.amap.com/loca?key=f507f1ad3293f3cb3d551fe4ca8504c8&v=1.3.2&"></script>
+<script src="https://cache.amap.com/lbs/static/es5.min.js"></script>
+<script src="jquery.js"></script>
+<script>
+
+    var map = new AMap.Map('container', {
+        features: ['bg', 'road'],
+        mapStyle: 'amap://styles/dark',
+        center: [121.564862, 31.194251],
+        pitch: 56,
+        zoom: 10.4,
+        viewMode: '3D'
+    });
+
+    // map.setMapStyle('amap://styles/1de318cbb8d12c02303a22c550b9ccc9')
+
+    var layer = new Loca.HeatmapLayer({
+        map: map,
+    });
+
+    $.get('data2.json', function (datas) {
+        layer.setData(datas, {
+            lnglat: function(data){
+                return [data.value.lng, data.value.lat]
+            },
+            value: 'queue_len'
+        });
+
+        layer.setOptions({
+            style: {
+                radius: 18,
+                color: {
+                    0.1: '#FF0088',
+                    0.3: '#C10066',
+                    0.5: '#FF8800',
+                    0.6: '#FF5511',
+                    0.9: '#d7191c',
+                    1.0: '#550088'
+                }
+            }
+        }).render();
+    });
+
+
+
+</script>
+</body>
+</html>
